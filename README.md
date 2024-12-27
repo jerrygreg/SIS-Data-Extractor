@@ -1,2 +1,2 @@
 # SIS-Data-Extractor
- Function to grab and save data from JHU SIS Course Search
+ Function to grab and save data from Johns Hopkins University (JHU) SIS Course Search
