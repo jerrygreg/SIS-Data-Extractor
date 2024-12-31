@@ -1,5 +1,11 @@
 # SIS-Data-Extractor
  Functions to grab and save data from Johns Hopkins University (JHU) SIS Course Search to a text file for ease of access. This is so you don't have to constantly do API calls when developing a program or bug testing, as the API is quite slow.
+### Setup
+ To use the functions you must get an API key from JHU SIS
+ Go to ```https://sis.jhu.edu/api```, scroll to the bottom and request an API Key with your JHU email address.
+ ![alt text]({435684E2-651C-4AF8-9CA3-1819E67B8F2F}.png)
+ After you get your API key, put it into a file named ```Key.txt``` in the same directory as ```DataGrabber.py``` or use the ```changeKey("Insert Key Here")``` function and pass in your key as a string into the function. e.g. ```changeKey("kqI1jfnaO")```
+
 ### Below is an example of using these functions
  This first line grabs the data from SIS and stores it in the ```fullJson``` variable.
  This variable is essentially a list of dictionaries with the same formatting as SIS outputs.

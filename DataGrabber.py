@@ -383,6 +383,8 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                         outfile.write(selection + delim2)
                     outfile.write(delim1)
                 outfile.write("\n")
+                #Done writing header
+
 
                 #Loop through courses and write each one
                 for courseJson in fullJson:
@@ -423,8 +425,7 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
             case _:
                 raise KeyError(f"File format given is not possible: {fileformat}")
             
-    if debug: print(f"Finished writing to file '{outpath}' with selections: {selection_list}")
-            
+    if debug: print(f"Finished writing to file '{outpath}' with selections: {selection_list}")         
 
 def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELIM2, removecharacters = [], debug = DEBUG):
     #Grab meetings
@@ -462,7 +463,6 @@ def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELI
 
         outfile.write(delim1)
 
-
 def removeEscapeChr(instr):
     """
     Removes all escape characters
@@ -483,6 +483,14 @@ def removeEscapeChr(instr):
 
     return instr
     
+def changeKey(keystr):
+    """
+    Use to change the KEY
+    ---
+    """
+    global KEY
+    KEY = keystr
+
 if __name__ == "__main__":
     print("Running examples!")
     #Grabs the data from SIS and stores it in the fullJson variable.
