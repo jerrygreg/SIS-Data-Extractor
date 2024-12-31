@@ -365,8 +365,24 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                 if debug: print("delimed")
 
                 #Write header
-                if debug: print("Writing header. NOT YET IMPLIMENTED HEADER") #TODO: impliment header
-                                
+                if debug: print("Writing header") #TODO: impliment header
+                #Write basic and section selections in the header
+                for selection in np.append(basic_selections, section_selections):
+                    writestr = f"{selection}"
+                    writestr = removeEscapeChr(writestr)
+                    for removechr in removecharacters: writestr = writestr.replace(removechr,"")
+                    try: outfile.write(writestr + delim1) 
+                    except: 
+                        if debug: print(f"Error writing '{selection}' to file with class '{courseJson["OfferingName"]}'")
+                        outfile.write("ERROR WRITING TO FILE" + delim1) 
+
+                #Write meeting header
+                if len(meetings_selections) != 0:
+                    outfile.write("MeetingIndex" + delim2) #Meeting index
+                    for selection in meetings_selections:
+                        outfile.write(selection + delim2)
+                    outfile.write(delim1)
+                outfile.write("\n")
 
                 #Loop through courses and write each one
                 for courseJson in fullJson:
