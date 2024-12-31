@@ -13,8 +13,8 @@ with open('Key.txt', 'r') as f: KEY = "?key="+f.readline()
 # "/(Season) (Year)"    if you want to specify
 # "/current"            if you just want the current year
 TERM = "/current"
-DELIM1 = "_"
-DELIM2 = ";"
+DELIM1 = ";"
+DELIM2 = "_"
 DEBUG = True
 
 #Dict of all availible schoolnames
@@ -35,31 +35,52 @@ ALLSCHOOLS = {
 }
 
 
-def getFullJson(schools = "ALL", term = TERM, debug = DEBUG):
+def getFullJson(schools = "all", term = TERM, debug = DEBUG):
     """
     ----------------------------------------------------
     Gets all the data from SIS
-    Returns a long dictionary format just like SIS
     ----------------------------------------------------
+
+    Returns a long dictionary format just like SIS
+    
     ----------------------------------------------------
     ARGUMENTS:
-    - schools: The schools to search through
-    "ALL"   
-        Searches all JHU schools - DEFAULT
-    "WSE,KSAS,SAIS,PEA,PREPEA,BSPH,CBS,GKSAS,GWSE,EDU,NU,BSPHNC,MED"    
-        Use any subset of these options to specify schools
+    - schools: The schools to search through    
+    
+    "all" Searches all JHU schools - DEFAULT
+
+    "BSPH"  : r"Bloomberg School of Public Health",
+    "CBS"   : r"Carey Business School",
+    "KSAS"  : r"Krieger School of Arts and Sciences",
+    "GKSAS" : r"Krieger School of Arts and Sciences Advanced Academic Programs",
+    "SAIS"  : r"Nitze School of Advanced International Studies",
+    "EDU"   : r"School of Education",
+    "NU"    : r"School of Nursing",
+    "PEA"   : r"The Peabody Institute",
+    "WSE"   : r"Whiting School of Engineering",
+    "GWSE"  : r"Whiting School of Engineering Programs for Professionals",
+    "PREPEA": r"The Peabody Preparatory",
+    "BSPHNC": r"Bloomberg School of Public Health Non-Credit",
+    "MED"   : r"School of Medicine"
+
+    Use any subset of these options to specify schools
 
     - term: 
+
     "/(Season) (Year)"    
         if you want to specify. E.g. "/Fall 2024"
+
     "/current"            
         if you just want the current semester
     
     - debug:
-    True
+
+    True,
         Prints debug info
-    False
+
+    False,
         doesn't pring debug info
+
     ----------------------------------------------------
     """
     #Get school_list
@@ -76,14 +97,43 @@ def getFullJson(schools = "ALL", term = TERM, debug = DEBUG):
 
     return fullJson
 
-def getSchoolList(schools = "ALL", debug = DEBUG):
+def getSchoolList(schools = "all", debug = DEBUG):
+    """
+    ----------------------------------------------------
+    Grabs the schools list from school names from the codes of the school names
+    ----------------------------------------------------
+
+    Can specify any number of schools using their shortened codes comma delimited
+
+    ----------------------------------------------------
+    ARGUMENTS:
+    - schools: The schools to search through    
+    
+    "all" Searches all JHU schools - DEFAULT
+
+    "BSPH"  : r"Bloomberg School of Public Health",
+    "CBS"   : r"Carey Business School",
+    "KSAS"  : r"Krieger School of Arts and Sciences",
+    "GKSAS" : r"Krieger School of Arts and Sciences Advanced Academic Programs",
+    "SAIS"  : r"Nitze School of Advanced International Studies",
+    "EDU"   : r"School of Education",
+    "NU"    : r"School of Nursing",
+    "PEA"   : r"The Peabody Institute",
+    "WSE"   : r"Whiting School of Engineering",
+    "GWSE"  : r"Whiting School of Engineering Programs for Professionals",
+    "PREPEA": r"The Peabody Preparatory",
+    "BSPHNC": r"Bloomberg School of Public Health Non-Credit",
+    "MED"   : r"School of Medicine"
+
+    Use any subset of these options to specify schools
+    """
     #Load global variables
     global ALLSCHOOLS
 
     #Match based on schools
     # I like match case as it allows easy changing cases
     match schools.upper():
-        case "ALL": #Go through all schools
+        case "all": #Go through all schools
             school_list = np.array(ALLSCHOOLS.values())
 
         case _:     #Default
@@ -100,8 +150,13 @@ def getSchoolList(schools = "ALL", debug = DEBUG):
 
 def getBasicJson(school_list, term = TERM, debug = DEBUG):
     """
+    ----------------------------------------------------
     Returns the basicJson
+    ----------------------------------------------------
+    
     i.e. a list of dictionaries that is the straight output from the SIS api
+
+    ----------------------------------------------------
     """
     #Load Globals
     global API
@@ -126,8 +181,13 @@ def getBasicJson(school_list, term = TERM, debug = DEBUG):
 
 def getSectionCodes(basicJson, debug = DEBUG):
     """
+    ----------------------------------------------------
     Returns the section codes in an array
+    ----------------------------------------------------
+
     Takes a basicJson as an input
+
+    ----------------------------------------------------
     """
     #Loop through basicJSON to grab the section names and coursecode of each one
     sectioncodes = np.full(len(basicJson)," "*10)
@@ -148,11 +208,17 @@ def getSectionCodes(basicJson, debug = DEBUG):
 
 def getAdvancedJson(sectioncodes, term = "/Fall 2024", debug = DEBUG):
     """
+    ----------------------------------------------------
     Returns json with section data
+    ----------------------------------------------------
+    
     uses the section codes as input
     e.g. ["EN52021901","AS17311702",...]
 
+    ----------------------------------------------------
+
     !!term default is Fall 2024!!
+    ----------------------------------------------------
     """
     #Load globals
     global API
@@ -181,43 +247,208 @@ def getAdvancedJson(sectioncodes, term = "/Fall 2024", debug = DEBUG):
 
 def writeData(fullJson, outpath = "CourseData.txt", selections = "all", 
               delim1 = DELIM1, delim2 = DELIM2, removecharacters = [], 
-              timeformat = "mins", fileformat = "delimed"):
+              fileformat = "delimed", debug = DEBUG):
     """
     ----------------------------------------------------
     Writes data to a text file
-    This helps in allowing you to access this data quickly without having to request from the API repeatedly
     ----------------------------------------------------
+
+    This helps in allowing you to access this data quickly without having to request from the API repeatedly
+    
     ----------------------------------------------------
     ARGUMENTS:
-    - fullJson
+    - fullJson:
         The Json with all the data that you want to parse and write to a file
         Must be formatted just like SIS API json returns
 
-    - outpath
+    - outpath:
         The filepath to save the text file to
 
-    - selections
+    - selections:
+        Comma delimited string containing all the data you want write to the file
 
-    - delim1
+        POSSIBLE SELECTIONS
 
-    - delim2
+        'TermStartDate', 'SchoolName', 'CoursePrefix', 'Term', 'Term_IDR', 'OfferingName', 'SectionName', 
+        'Title', 'Credits', 'Department', 'Level', 'Status', 'DOW', 'DOWSort', 'TimeOfDay', 'SubDepartment', 
+        'SectionRegRestrictions', 'SeatsAvailable', 'MaxSeats', 'OpenSeats', 'Waitlisted', 'IsWritingIntensive', 
+        'AllDepartments', 'Instructors', 'InstructorsFullName', 'Location', 'Building', 'HasBio', 'Areas', 'InstructionMethod', 
+        'SectionCoRequisites', 'SectionCoReqNotes', 'SSS_SectionsID', 'Term_JSS', 'Repeatable',
 
-    - removecharacters
+        #SECTION DETAILS, if "SectionDetails" is included, you will write ALL of the below
 
-    - timeformat
+        'SectionDetails','Description', 'DepartmentID', 'CreditType', 'WebNotes', 'IsCrossListed', 
+        'Fees', 'Prerequisites', 'EvaluationUrls', 'PosTags', 'CoRequisites', 'Equivalencies', 'Restrictions', 'Instructors',
 
-    - fileformat
+        #MEETING DETAILS, if "Meetings" is included, you will write ALL of the below
+
+        'Meetings', 'DOW', 'Dates', 'Times', 'Location', 'Building', 'Room'
+
+    - delim1:
+        The delimiter used between selections.
+        Used between meetings but not used between meeting selections.
+
+    - delim2:
+        The delimiter used between meeting selections.
+
+    - removecharacters:
+        Characters
+
+    - fileformat:
     ----------------------------------------------------
+    ----------------------------------------------------
+    Internally this works by separating the selections into selections that are 
+
+    basic, i.e. just an accessing the dictionary,
+
+    section details i.e. those that go through the step of section details,
+
+    meeting details i.e. those related to meeting times.
     """
+    #Basic info
+    ALLSELECTIONS = np.array(['TermStartDate', 'SchoolName', 'CoursePrefix', 'Term', 'Term_IDR', 'OfferingName', 'SectionName', 
+    'Title', 'Credits', 'Department', 'Level', 'Status', 'DOW', 'DOWSort', 'TimeOfDay', 'SubDepartment', 
+    'SectionRegRestrictions', 'SeatsAvailable', 'MaxSeats', 'OpenSeats', 'Waitlisted', 'IsWritingIntensive', 
+    'AllDepartments', 'Instructors', 'InstructorsFullName', 'Location', 'Building', 'HasBio', 'Areas', 'InstructionMethod', 
+    'SectionCoRequisites', 'SectionCoReqNotes', 'SSS_SectionsID', 'Term_JSS', 'Repeatable',
+    'SectionDetails', 
+    #Section Details
+    'Description', 'DepartmentID', 'CreditType', 'WebNotes', 'IsCrossListed', 
+    'Fees', 'Prerequisites', 'EvaluationUrls', 'PosTags', 'CoRequisites', 'Equivalencies', #LISTS
+    'Restrictions', 'Instructors', #Lists of Dictionaries
+    'Meetings', #LIST
+    #Meeting details
+    'DOW', 'Dates', 'Times', 'Location', 'Building', 'Room'])
 
+    ALLBASICSELECTIONS = ALLSELECTIONS[ : np.where(ALLSELECTIONS == "SectionDetails")[0][0]]
+    ALLSECTIONSELECTIONS = ALLSELECTIONS[np.where(ALLSELECTIONS == "SectionDetails")[0][0] : np.where(ALLSELECTIONS == "Meetings")[0][0]]
+    ALLMEETINGSELECTIONS = ALLSELECTIONS[np.where(ALLSELECTIONS == "Meetings")[0][0] : ]
+
+    #init
+    selection_list = np.array(selections.split(","))
+    removecharacters.append("\r")
+    removecharacters.append(delim1)
+    removecharacters.append(delim2)
+
+    #Create groups for each type of selection
+    if selections == "all":
+        selection_list = ALLSELECTIONS
+    else:
+        #Check selection_list
+        checkkeys = np.isin(selection_list, ALLSELECTIONS)
+        if False in checkkeys:
+            raise KeyError(f"The following selections are invalid inputs: {selection_list[~checkkeys]}")
+
+    checkkeys_basic = np.isin(selection_list, ALLBASICSELECTIONS)
+    basic_selections = selection_list[checkkeys_basic]
+    
+    if "SectionDetails" in selection_list: #ALL SECTION DETAILS
+        section_selections = ALLSECTIONSELECTIONS[1:]
+        meetings_selections = ALLMEETINGSELECTIONS[1:]
+    elif "Meetings" in selection_list: #ALL MEETINGS
+        checkkeys_section = np.isin(selection_list, ALLSECTIONSELECTIONS)
+        section_selections = selection_list[checkkeys_section]
+
+        meetings_selections = ALLMEETINGSELECTIONS[1:]
+    else: #Just the selected meeting info and section info
+        checkkeys_section = np.isin(selection_list, ALLSECTIONSELECTIONS)
+        section_selections = selection_list[checkkeys_section]
+
+        checkkeys_meetings = np.isin(selection_list, ALLMEETINGSELECTIONS)
+        meetings_selections = selection_list[checkkeys_meetings]
+    
+    #Options for file format
     with open(outpath,"w") as outfile:
-        pass
+        match fileformat:
+            case "delimed":
+                if debug: print("delimed")
 
-    pass
+                #Write header
+                if debug: print("Writing header. NOT YET IMPLIMENTED HEADER") #TODO: impliment header
+                                
+
+                #Loop through courses and write each one
+                for courseJson in fullJson:
+                    if debug: print(f"Writing {courseJson["OfferingName"]}")
+                    #Basic selections
+                    for selection in basic_selections:
+                    #IN ALL THE WRITE STATEMENTS, we use replace for loop to remove the delimiters from the string
+                        writestr = f"{courseJson[selection]}"
+                        writestr = writestr.replace("\n"," ")
+                        for removechr in removecharacters: writestr = writestr.replace(removechr,"")
+                        try: outfile.write(writestr + delim1)
+                        except: 
+                            if debug: print(f"Error writing '{selection}' to file with class '{courseJson["OfferingName"]}'")
+                            outfile.write("ERROR WRITING TO FILE" + delim1)
+
+                    #Section selections
+                    for selection in section_selections:
+                        writestr = f"{courseJson["SectionDetails"][0][selection]}"
+                        writestr = writestr.replace("\n"," ")
+                        for removechr in removecharacters: writestr = writestr.replace(removechr,"")
+                        try: outfile.write(writestr + delim1)
+                        except: 
+                            if debug: print(f"Error writing '{selection}' to file with class '{courseJson["OfferingName"]}'")
+                            outfile.write("ERROR WRITING TO FILE" + delim1)
+                        
+                    #Meeting selections
+                    writeMeeting(outfile, courseJson, meetings_selections, delim1=delim1, delim2=delim2, removecharacters = removecharacters, debug=debug)
 
 
+                    #End line
+                    outfile.write("\n")
+
+
+            case "json":
+                print("json, not implemented yet") #TODO: IMPLIMENT JSON WRITE MODE
+
+            case _:
+                raise KeyError(f"File format given is not possible: {fileformat}")
+            
+
+def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELIM2, removecharacters = [], debug = DEBUG):
+    #Grab meetings
+    courseMeetings = courseJson["SectionDetails"][0]["Meetings"]
+
+    #Loop through meetings
+    for i,meeting in enumerate(courseMeetings):
+
+        outfile.write("M" + str(i) + delim2) #Meeting index
+
+        #Do all selections
+        for selection in selections:
+            #Check for special cases
+            if selection == "Times" and meeting["Times"] != "": #TIMES special formatting
+                times = meeting["Times"].split(" - ")
+                #Different time formats
+                writestr = f"{times[0]}"
+                writestr = writestr.replace("\n"," ")
+                for removechr in removecharacters: writestr = writestr.replace(removechr,"")
+                outfile.write(writestr + delim2)
+
+                writestr = f"{times[1]}"
+                writestr = writestr.replace("\n"," ")
+                for removechr in removecharacters: writestr = writestr.replace(removechr,"")
+                outfile.write(writestr + delim2)
+
+                
+            #No special cases
+            else:
+                writestr = f"{meeting[selection]}"
+                writestr = writestr.replace("\n"," ")
+                for removechr in removecharacters: writestr = writestr.replace(removechr,"")
+                outfile.write(writestr + delim2)
+            
+
+        outfile.write(delim1)
+
+
+
+    
 if __name__ == "__main__":
-    print("running as main")
+    print("Running examples!")
     fullJson = getFullJson(schools = "WSE,KSAS",term = "/current")
-    #writeData(data)
+    writeData(fullJson, outpath = "CourseData.txt", selections = "all")
+    writeData(fullJson, outpath = "BasicCourseData.txt", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
+    writeData(fullJson, outpath = "CoursesRequisites.txt", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
     print("done")
