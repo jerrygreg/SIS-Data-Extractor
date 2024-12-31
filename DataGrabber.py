@@ -473,7 +473,4 @@ if __name__ == "__main__":
     writeData(fullJson, outpath = "CourseData.txt", selections = "all")
     writeData(fullJson, outpath = "BasicCourseData.txt", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
     writeData(fullJson, outpath = "CoursesRequisites.txt", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
-    print("Wrote to file: 'CourseData.txt' with selection: 'all'")
-    print("Wrote to file: 'BasicCourseData.txt' with selection: 'Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings'")
-    print("Wrote to file: 'CoursesRequisites.txt' with selection: 'OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions'")
     print("done!")
