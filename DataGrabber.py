@@ -469,8 +469,12 @@ def removeEscapeChr(instr):
     
 if __name__ == "__main__":
     print("Running examples!")
+    #Grabs the data from SIS and stores it in the fullJson variable.
+    # This variable is essentially a list of dictionaries with the exact same formatting as SIS outputs.
     fullJson = getFullJson(schools = "WSE,KSAS",term = "/current")
-    writeData(fullJson, outpath = "CourseData.txt", selections = "all")
+    #The below functions use that data to selectively write certain selections that are of interest for the specific use-case.
+    # For example the CoursesRequisites.txt file may be used for a program that shows all the prerequisites for a specific course.
+    writeData(fullJson, outpath = "CourseData.txt", selections = "all", debug = False)
     writeData(fullJson, outpath = "BasicCourseData.txt", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
     writeData(fullJson, outpath = "CoursesRequisites.txt", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
     print("done!")
