@@ -305,6 +305,8 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
 
     meeting details i.e. those related to meeting times.
     """
+    if debug: print(f"Writing to file '{outpath}' with selections: '{selections}'")
+    
     #Basic info
     ALLSELECTIONS = np.array(['TermStartDate', 'SchoolName', 'CoursePrefix', 'Term', 'Term_IDR', 'OfferingName', 'SectionName', 
     'Title', 'Credits', 'Department', 'Level', 'Status', 'DOW', 'DOWSort', 'TimeOfDay', 'SubDepartment', 
@@ -326,7 +328,6 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
 
     #init
     selection_list = np.array(selections.split(","))
-    removecharacters.append("\r")
     removecharacters.append(delim1)
     removecharacters.append(delim2)
 
@@ -374,7 +375,7 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                     for selection in basic_selections:
                     #IN ALL THE WRITE STATEMENTS, we use replace for loop to remove the delimiters from the string
                         writestr = f"{courseJson[selection]}"
-                        writestr = writestr.replace("\n"," ")
+                        writestr = removeEscapeChr(writestr)
                         for removechr in removecharacters: writestr = writestr.replace(removechr,"")
                         try: outfile.write(writestr + delim1)
                         except: 
@@ -384,7 +385,7 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                     #Section selections
                     for selection in section_selections:
                         writestr = f"{courseJson["SectionDetails"][0][selection]}"
-                        writestr = writestr.replace("\n"," ")
+                        writestr = removeEscapeChr(writestr)
                         for removechr in removecharacters: writestr = writestr.replace(removechr,"")
                         try: outfile.write(writestr + delim1)
                         except: 
@@ -392,7 +393,8 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                             outfile.write("ERROR WRITING TO FILE" + delim1)
                         
                     #Meeting selections
-                    writeMeeting(outfile, courseJson, meetings_selections, delim1=delim1, delim2=delim2, removecharacters = removecharacters, debug=debug)
+                    if len(meetings_selections) != 0:
+                        writeMeeting(outfile, courseJson, meetings_selections, delim1=delim1, delim2=delim2, removecharacters = removecharacters, debug=debug)
 
 
                     #End line
@@ -404,6 +406,8 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
 
             case _:
                 raise KeyError(f"File format given is not possible: {fileformat}")
+            
+    if debug: print(f"Finished writing to file '{outpath}' with selections: {selection_list}")
             
 
 def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELIM2, removecharacters = [], debug = DEBUG):
@@ -422,12 +426,12 @@ def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELI
                 times = meeting["Times"].split(" - ")
                 #Different time formats
                 writestr = f"{times[0]}"
-                writestr = writestr.replace("\n"," ")
+                writestr = removeEscapeChr(writestr)
                 for removechr in removecharacters: writestr = writestr.replace(removechr,"")
                 outfile.write(writestr + delim2)
 
                 writestr = f"{times[1]}"
-                writestr = writestr.replace("\n"," ")
+                writestr = removeEscapeChr(writestr)
                 for removechr in removecharacters: writestr = writestr.replace(removechr,"")
                 outfile.write(writestr + delim2)
 
@@ -435,7 +439,7 @@ def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELI
             #No special cases
             else:
                 writestr = f"{meeting[selection]}"
-                writestr = writestr.replace("\n"," ")
+                writestr = removeEscapeChr(writestr)
                 for removechr in removecharacters: writestr = writestr.replace(removechr,"")
                 outfile.write(writestr + delim2)
             
@@ -443,7 +447,25 @@ def writeMeeting(outfile, courseJson, selections, delim1 = DELIM1, delim2 = DELI
         outfile.write(delim1)
 
 
+def removeEscapeChr(instr):
+    """
+    Removes all escape characters
+    ---
+    Specifically removes these characters that we care about
+    
+    ["\\n",	
+    "\\r",	
+    "\\t",	
+    "\\b",		
+    "\\f",]
+    """
 
+    escapeChrs = ["\n",	"\r", "\t", "\b"]
+
+    for character in escapeChrs:
+        instr = instr.replace(character, " ")
+
+    return instr
     
 if __name__ == "__main__":
     print("Running examples!")
@@ -451,4 +473,7 @@ if __name__ == "__main__":
     writeData(fullJson, outpath = "CourseData.txt", selections = "all")
     writeData(fullJson, outpath = "BasicCourseData.txt", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
     writeData(fullJson, outpath = "CoursesRequisites.txt", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
-    print("done")
+    print("Wrote to file: 'CourseData.txt' with selection: 'all'")
+    print("Wrote to file: 'BasicCourseData.txt' with selection: 'Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings'")
+    print("Wrote to file: 'CoursesRequisites.txt' with selection: 'OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions'")
+    print("done!")
