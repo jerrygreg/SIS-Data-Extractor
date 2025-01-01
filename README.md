@@ -21,8 +21,7 @@
  ```
  There are two options for fileformat: 
  
- ```"delimed"``` if you want it to look like a csv, delimited by your chosen delimiters. 
-        Default: ```delim1 = ";"``` and ```delim2 = "_"```
+ ```"delimed"``` if you want it to look like a csv, delimited by your chosen delimiters. Default: ```delim1 = ";"``` and ```delim2 = "_"```
 
  ```"json"``` if you want it to look like a pretty print json.
  
