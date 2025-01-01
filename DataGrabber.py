@@ -1,5 +1,6 @@
 import requests
 import numpy as np
+import json
 
 #TODO: CHANGE TO USE ADVANCED SEARCH
 
@@ -284,17 +285,27 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
 
         'Meetings', 'DOW', 'Dates', 'Times', 'Location', 'Building', 'Room'
 
+    - fileformat:
+        the format the text file should be in
+
+        "delimed": A delimited file, delimited by the delimiters set when calling the function
+
+        "json": A pretty print json file
+
     - delim1:
         The delimiter used between selections.
         Used between meetings but not used between meeting selections.
+        
+        DEFAULT - ";"
 
     - delim2:
         The delimiter used between meeting selections.
+        
+        DEFAULT - "_"
 
     - removecharacters:
-        Characters
-
-    - fileformat:
+        Characters to remove from each string if in the delimed file format mode
+    
     ----------------------------------------------------
     ----------------------------------------------------
     Internally this works by separating the selections into selections that are 
@@ -420,7 +431,49 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
 
 
             case "json":
-                print("json, not implemented yet") #TODO: IMPLIMENT JSON WRITE MODE
+                print("json") #TODO: IMPLIMENT JSON WRITE MODE
+                if selections == "all":
+                    json_str = json.dumps(fullJson, indent = 4)
+                    outfile.write(json_str)
+                
+                else:
+                    #Make copy so we don't ruin the outter variable
+                    fullJson = fullJson[:]
+                    #Grab the keys that are not selected
+                    # basic
+                    not_basic_selections = ALLBASICSELECTIONS[~np.isin(ALLBASICSELECTIONS,basic_selections)]
+                    # section
+                    not_section_selections = ALLSECTIONSELECTIONS[1:][~np.isin(ALLSECTIONSELECTIONS[1:],section_selections)]
+                    # meeting
+                    not_meeting_selections = ALLMEETINGSELECTIONS[1:][~np.isin(ALLMEETINGSELECTIONS[1:],section_selections)]
+
+                    #delete dictionary keys
+                    for courseJson in fullJson:
+                        if debug: print(f"Clearing not selected keys from {courseJson["OfferingName"]}")
+                        # basic
+                        del courseJson["Meetings"]
+                        for notselection in not_basic_selections:
+                            del courseJson[notselection]
+                        
+                        # section
+                        del courseJson["SectionDetails"][0]["Departments"]
+                        del courseJson["SectionDetails"][0]["Credits"]
+                        if np.array_equal(not_section_selections, ALLSECTIONSELECTIONS[1:]):
+                            del courseJson["SectionDetails"]
+                        else:
+                            for notselection in not_section_selections:
+                                del courseJson["SectionDetails"][0][notselection]
+                        
+                        # meeting
+                        if np.array_equal(not_meeting_selections, ALLMEETINGSELECTIONS[1:]):
+                            del courseJson["SectionDetails"][0]["Meetings"]
+                        else:
+                            for notselection in not_meeting_selections:
+                                for meeting in courseJson["SectionDetails"][0]["Meetings"]:
+                                    del meeting[notselection]
+
+                    json_str2 = json.dumps(fullJson, indent = 4)
+                    outfile.write(json_str2)
 
             case _:
                 raise KeyError(f"File format given is not possible: {fileformat}")
@@ -499,6 +552,6 @@ if __name__ == "__main__":
     #The below functions use that data to selectively write certain selections that are of interest for the specific use-case.
     # For example the CoursesRequisites.txt file may be used for a program that shows all the prerequisites for a specific course.
     writeData(fullJson, outpath = "CourseData.txt", selections = "all", debug = False)
-    writeData(fullJson, outpath = "BasicCourseData.txt", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
-    writeData(fullJson, outpath = "CoursesRequisites.txt", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
+    writeData(fullJson, outpath = "BasicCourseData.txt", fileformat = "delimed", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
+    writeData(fullJson, outpath = "CoursesRequisites.txt", fileformat = "json", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
     print("done!")

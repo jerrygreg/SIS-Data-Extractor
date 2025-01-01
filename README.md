@@ -16,10 +16,15 @@
  For example, the ```CoursesRequisites.txt``` file may be used for a program that shows all the prerequisites for a specific course.
  ```
  writeData(fullJson, outpath = "CourseData.txt", selections = "all", debug = False)
- writeData(fullJson, outpath = "BasicCourseData.txt", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
- writeData(fullJson, outpath = "CoursesRequisites.txt", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
+ writeData(fullJson, outpath = "BasicCourseData.txt", fileformat = "delimed", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
+ writeData(fullJson, outpath = "CoursesRequisites.txt", fileformat = "json", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
  ```
+ There are two options for fileformat: 
+ ```"delimed"``` if you want it to look like a csv, delimited by your chosen delimiters. 
+        Default: ```delim1 = ";"``` and ```delim2 = "_"```
 
+ ```"json"``` if you want it to look like a pretty print json
+ 
  If you want to remove the prints done by default on all functions, use the argument debug = False.
  
- Libraries used: numpy, requests
+ Libraries used: numpy, requests, json
