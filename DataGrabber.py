@@ -365,7 +365,7 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                 if debug: print("delimed")
 
                 #Write header
-                if debug: print("Writing header") #TODO: impliment header
+                if debug: print("Writing header") 
                 #Write basic and section selections in the header
                 for selection in np.append(basic_selections, section_selections):
                     writestr = f"{selection}"
