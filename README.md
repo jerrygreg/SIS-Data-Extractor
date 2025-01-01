@@ -20,10 +20,11 @@
  writeData(fullJson, outpath = "CoursesRequisites.txt", fileformat = "json", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
  ```
  There are two options for fileformat: 
+ 
  ```"delimed"``` if you want it to look like a csv, delimited by your chosen delimiters. 
         Default: ```delim1 = ";"``` and ```delim2 = "_"```
 
- ```"json"``` if you want it to look like a pretty print json
+ ```"json"``` if you want it to look like a pretty print json.
  
  If you want to remove the prints done by default on all functions, use the argument debug = False.
  
