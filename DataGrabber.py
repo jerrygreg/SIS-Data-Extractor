@@ -2,7 +2,7 @@ import requests
 import numpy as np
 import json
 
-#TODO: CHANGE TO USE ADVANCED SEARCH
+#TODO: Add support for using advanced search
 
 #Setting up the API call
 #API calls should be prepended with API and appended with KEY
@@ -391,7 +391,11 @@ def writeData(fullJson, outpath = "CourseData.txt", selections = "all",
                 if len(meetings_selections) != 0:
                     outfile.write("MeetingIndex" + delim2) #Meeting index
                     for selection in meetings_selections:
-                        outfile.write(selection + delim2)
+                        if selection == "Times":
+                            outfile.write("StartTime" + delim2)
+                            outfile.write("EndTime" + delim2)
+                        else:
+                            outfile.write(selection + delim2)
                     outfile.write(delim1)
                 outfile.write("\n")
                 #Done writing header
