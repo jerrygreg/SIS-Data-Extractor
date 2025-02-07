@@ -94,7 +94,7 @@ def getFullJson(schools = "all", term = TERM, debug = DEBUG):
 
     # change term for the advancedjson function
     term = "/" + basicJson[0]["Term"]
-    fullJson = getAdvancedJson(sectioncodes, term = term, debug = debug)
+    fullJson = getSectionJson(sectioncodes, term = term, debug = debug)
 
     return fullJson
 
@@ -207,7 +207,7 @@ def getSectionCodes(basicJson, debug = DEBUG):
 
     return sectioncodes
 
-def getAdvancedJson(sectioncodes, term = "/Fall 2024", debug = DEBUG):
+def getSectionJson(sectioncodes, term = "/Fall 2024", debug = DEBUG):
     """
     ----------------------------------------------------
     Returns json with section data
@@ -245,6 +245,9 @@ def getAdvancedJson(sectioncodes, term = "/Fall 2024", debug = DEBUG):
             continue 
 
     return advancedJson[:]
+
+def getAdvancedJson(**kwargs):
+    pass
 
 def writeData(fullJson, outpath = "CourseData.txt", selections = "all", 
               delim1 = DELIM1, delim2 = DELIM2, removecharacters = [], 
