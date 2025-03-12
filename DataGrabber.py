@@ -36,7 +36,7 @@ ALLSCHOOLS = {
 }
 
 
-def getFullJson(schools = "all", term = TERM, debug = DEBUG):
+def getFullJson(schools = "all", terms = TERM, debug = DEBUG):
     """
     ----------------------------------------------------
     Gets all the data from SIS
@@ -89,12 +89,21 @@ def getFullJson(schools = "all", term = TERM, debug = DEBUG):
     
     #Load in all data
     if debug: print(f"Getting all courses from: {school_list}")
-    basicJson = getBasicJson(school_list, term = term, debug = debug)
-    sectioncodes = getSectionCodes(basicJson, debug = debug)
+    split_terms = terms.split(",")
+    basicJson = [None]*len(split_terms)
+    for i, eachterm in enumerate(split_terms):
+        basicJson[i] = getBasicJson(school_list, term = eachterm, debug = debug)
+
+    sectioncodes = np.array([])
+    for json in basicJson:
+        sectioncodes = np.concatenate((sectioncodes,getSectionCodes(json, debug = debug)))
+    sectioncodes = list(set(sectioncodes))
 
     # change term for the advancedjson function
-    term = "/" + basicJson[0]["Term"]
-    fullJson = getSectionJson(sectioncodes, term = term, debug = debug)
+    fullJson = []
+    for i, json in enumerate(basicJson):
+        term = "/" + json[0]["Term"]
+        fullJson += getSectionJson(sectioncodes, term = term, debug = debug)
 
     return fullJson
 
@@ -169,7 +178,7 @@ def getBasicJson(school_list, term = TERM, debug = DEBUG):
 
     #Loop through schools and get all courses from each
     for school in school_list:
-        if debug: print(f"Getting courses from: {school}")
+        if debug: print(f"Getting courses from: {school}, Term: {term.replace("%20"," ")[1:]}")
 
         school = school.replace(" ","%20") #Correct so it works as a link properly
         #Request the json for the school
@@ -555,10 +564,10 @@ if __name__ == "__main__":
     print("Running examples!")
     #Grabs the data from SIS and stores it in the fullJson variable.
     # This variable is essentially a list of dictionaries with the exact same formatting as SIS outputs.
-    fullJson = getFullJson(schools = "WSE,KSAS",term = "/current")
+    fullJson = getFullJson(schools = "WSE,KSAS",terms = "/Spring 2025,/Fall 2024")
     #The below functions use that data to selectively write certain selections that are of interest for the specific use-case.
     # For example the CoursesRequisites.txt file may be used for a program that shows all the prerequisites for a specific course.
     writeData(fullJson, outpath = "CourseData.txt", selections = "all", debug = False)
     writeData(fullJson, outpath = "BasicCourseData.txt", fileformat = "delimed", selections = "Title,OfferingName,SectionName,SchoolName,Term,Instructors,Meetings")
-    writeData(fullJson, outpath = "CoursesRequisites.txt", fileformat = "json", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions")
+    writeData(fullJson, outpath = "CoursesRequisites.txt", fileformat = "json", selections = "OfferingName,Prerequisites,CoRequisites,Equivalencies,Restrictions,Description")
     print("done!")
